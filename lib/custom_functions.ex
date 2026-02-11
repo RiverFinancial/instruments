@@ -86,6 +86,11 @@ defmodule Instruments.CustomFunctions do
       def measure(key, options \\ [], func) do
         Instruments.measure([unquote(prefix_with_dot), key], options, func)
       end
+
+      @doc false
+      def send_service_check(key, status, options \\ []) do
+        Instruments.send_service_check([unquote(prefix_with_dot), key], status, options)
+      end
     end
   end
 end

@@ -91,6 +91,14 @@ defmodule Instruments.CustomFunctionsTest do
 
       assert_metric_reported(:timing, "custom.my.measure", 10..11, tags: ["timing:short"])
     end
+
+    test "to send_service_check calls" do
+      Custom.send_service_check("my.check", :ok)
+      assert_metric_reported(:service_check, "custom.my.check", :ok)
+
+      Custom.send_service_check("my.check", :critical, tags: ["env:prod"])
+      assert_metric_reported(:service_check, "custom.my.check", :critical, tags: ["env:prod"])
+    end
   end
 
   test "setting a runtime prefix" do

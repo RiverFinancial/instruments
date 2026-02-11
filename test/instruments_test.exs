@@ -149,6 +149,36 @@ defmodule InstrumentsTest do
     assert_metric_reported(:event, "my_title", "my text", tags: ["host:any", "another:tag"])
   end
 
+  test "sending service checks" do
+    Instruments.send_service_check("my.service", :ok)
+    assert_metric_reported(:service_check, "my.service", :ok)
+
+    Instruments.send_service_check("my.service", :warning)
+    assert_metric_reported(:service_check, "my.service", :warning)
+
+    Instruments.send_service_check("my.service", :critical)
+    assert_metric_reported(:service_check, "my.service", :critical)
+
+    Instruments.send_service_check("my.service", :unknown)
+    assert_metric_reported(:service_check, "my.service", :unknown)
+  end
+
+  test "sending service checks with all options" do
+    Instruments.send_service_check("my.service", :critical,
+      timestamp: 1_234_567_890,
+      hostname: "web-01",
+      tags: ["env:prod"],
+      message: "connection refused"
+    )
+
+    assert_metric_reported(:service_check, "my.service", :critical,
+      timestamp: 1_234_567_890,
+      hostname: "web-01",
+      tags: ["env:prod"],
+      message: "connection refused"
+    )
+  end
+
   test "sending events with a title that's a variable blows up" do
     quoted =
       quote do

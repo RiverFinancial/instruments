@@ -3,7 +3,7 @@ defmodule Instruments.MacroHelpers do
 
   alias Instruments.RateTracker
 
-  @safe_metric_types [:increment, :decrement, :gauge, :event, :set, :distribution]
+  @safe_metric_types [:increment, :decrement, :gauge, :event, :set, :distribution, :service_check]
 
   @metrics_module Application.get_env(:instruments, :reporter_module, Instruments.Statix)
 
@@ -27,6 +27,15 @@ defmodule Instruments.MacroHelpers do
     end
   end
 
+  @spec to_iolist(
+          atom()
+          | bitstring()
+          | maybe_improper_list()
+          | number()
+          | {any(), any()}
+          | {atom() | {any(), list(), atom() | list()}, keyword(), atom() | list()},
+          any()
+        ) :: bitstring() | maybe_improper_list()
   @doc """
   Transforms metric keys into iolists. A metric key can be:
 

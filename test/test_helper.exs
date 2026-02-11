@@ -1,7 +1,7 @@
 ExUnit.start()
 
 defmodule MetricsAssertions do
-  @safe_metric_types [:increment, :decrement, :gauge, :event, :set, :distribution]
+  @safe_metric_types [:increment, :decrement, :gauge, :event, :set, :distribution, :service_check]
   use ExUnit.Case
 
   def assert_metric_reported(metric_type, metric_name) do
