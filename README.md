@@ -158,3 +158,5 @@ For histograms, measure calls and timings, the default sample rate is pegged to 
 This is so you don't accidentally overload your metrics collector. It can be
 overridden by passing `sample_rate: float_value` to your metrics call in the
 options.
+
+test
