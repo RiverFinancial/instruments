@@ -18,7 +18,7 @@ defmodule Instruments.Probe do
   @type datapoint :: String.t()
   @type state :: any
   @type probe_value :: number | keyword
-  @type probe_type :: :counter | :spiral | :gauge | :histogram | :timing | :set
+  @type probe_type :: :counter | :spiral | :gauge | :histogram | :distribution | :timing | :set
   @type probe_options :: [
           {:sample_rate, pos_integer}
           | {:tags, [String.t(), ...]}

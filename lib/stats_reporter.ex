@@ -38,6 +38,11 @@ defmodule Instruments.StatsReporter do
   @callback histogram(key, integer, keyword) :: stats_return
 
   @doc """
+  Include the value in the distribution defined by `key`
+  """
+  @callback distribution(key, integer, keyword) :: stats_return
+
+  @doc """
   Include the timing in the `key`
   """
   @callback timing(key, integer, keyword) :: stats_return

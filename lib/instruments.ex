@@ -123,6 +123,23 @@ defmodule Instruments do
       )
 
   @doc """
+  Adds a value to a distribution
+
+  Reports `value` to a distribution with key `key`. A Distribution is similar to a histogram but
+  is aggregated globally server-side across all agents, providing accurate percentile calculations.
+  """
+  defmacro distribution(key, value, options \\ []),
+    do:
+      MacroHelpers.build_metric_macro(
+        :distribution,
+        __CALLER__,
+        @metrics_module,
+        key,
+        value,
+        options
+      )
+
+  @doc """
   Reports a timed value
 
   If you're manually timing something, you can use this function to report its value. Timings

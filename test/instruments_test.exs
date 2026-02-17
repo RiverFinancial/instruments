@@ -113,6 +113,18 @@ defmodule InstrumentsTest do
     assert_metric_reported(:histogram, "discord.users.friend_count", 29)
   end
 
+  test "setting a distribution" do
+    Instruments.distribution("my.distribution", 29)
+    assert_metric_reported(:distribution, "my.distribution", 29)
+
+    Instruments.distribution("my.distribution", 949, tags: ["rpc:call", "other:data"])
+    assert_metric_reported(:distribution, "my.distribution", 949, tags: ["rpc:call", "other:data"])
+
+    distribution_name = "latency"
+    Instruments.distribution("discord.api.#{distribution_name}", 29)
+    assert_metric_reported(:distribution, "discord.api.latency", 29)
+  end
+
   test "setting a set value" do
     Instruments.set("my.set", 629)
     assert_metric_reported(:set, "my.set", 629)

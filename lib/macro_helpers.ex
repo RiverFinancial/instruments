@@ -3,7 +3,7 @@ defmodule Instruments.MacroHelpers do
 
   alias Instruments.RateTracker
 
-  @safe_metric_types [:increment, :decrement, :gauge, :event, :set]
+  @safe_metric_types [:increment, :decrement, :gauge, :event, :set, :distribution]
 
   @metrics_module Application.get_env(:instruments, :reporter_module, Instruments.Statix)
 
