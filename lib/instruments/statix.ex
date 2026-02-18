@@ -5,13 +5,15 @@ defmodule Instruments.Statix do
   use Statix, runtime_config: true
 
   def distribution(key, val, options \\ []) do
+    %{conn: %{prefix: prefix}} = current_statix()
+
     message =
       case Keyword.get(options, :tags) do
         nil ->
-          [key, ?:, to_string(val), "|d"]
+          [prefix, key, ?:, to_string(val), "|d"]
 
         tag_list ->
-          [key, ?:, to_string(val), "|d|#", Enum.intersperse(tag_list, ",")]
+          [prefix, key, ?:, to_string(val), "|d|#", Enum.intersperse(tag_list, ",")]
       end
 
     __MODULE__
