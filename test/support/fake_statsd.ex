@@ -28,6 +28,19 @@ defmodule FakeStatsd do
     |> do_decode
   end
 
+  defp do_decode(["_sc", name, status | rest]) do
+    status_atom =
+      case status do
+        "0" -> :ok
+        "1" -> :warning
+        "2" -> :critical
+        "3" -> :unknown
+      end
+
+    opts = decode_service_check_metadata(rest)
+    {:service_check, name, status_atom, opts}
+  end
+
   defp do_decode([name_and_val, type | rest]) do
     opts = decode_tags_and_sampling(rest)
     {name, val} = decode_name_and_value(name_and_val)
@@ -112,5 +125,28 @@ defmodule FakeStatsd do
             s
         end
     end
+  end
+
+  defp decode_service_check_metadata(fields),
+    do: decode_service_check_metadata(fields, [])
+
+  defp decode_service_check_metadata([], accum), do: Enum.reverse(accum)
+
+  defp decode_service_check_metadata([<<"d:", ts::binary>> | rest], accum) do
+    {timestamp, ""} = Integer.parse(ts)
+    decode_service_check_metadata(rest, Keyword.put(accum, :timestamp, timestamp))
+  end
+
+  defp decode_service_check_metadata([<<"h:", hostname::binary>> | rest], accum) do
+    decode_service_check_metadata(rest, Keyword.put(accum, :hostname, hostname))
+  end
+
+  defp decode_service_check_metadata([<<"#", tags::binary>> | rest], accum) do
+    tag_list = String.split(tags, ",")
+    decode_service_check_metadata(rest, Keyword.put(accum, :tags, tag_list))
+  end
+
+  defp decode_service_check_metadata([<<"m:", message::binary>> | rest], accum) do
+    decode_service_check_metadata(rest, Keyword.put(accum, :message, message))
   end
 end

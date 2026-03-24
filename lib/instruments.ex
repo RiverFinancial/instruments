@@ -231,6 +231,79 @@ defmodule Instruments do
     end
   end
 
+  @doc """
+  Sends a service check to DataDog
+
+  Reports the health status of a service. Status must be one of:
+  `:ok` (0), `:warning` (1), `:critical` (2), or `:unknown` (3).
+
+  ## Options
+
+    * `tags` - A list of String tags
+    * `message` - A description of the current status
+    * `hostname` - The hostname to associate with the check
+    * `timestamp` - A Unix timestamp for the check
+
+  ## Examples
+
+      Instruments.send_service_check("my.service", :ok)
+      Instruments.send_service_check("my.service", :critical,
+        tags: ["env:prod"],
+        message: "connection refused",
+        hostname: "web-01",
+        timestamp: 1234567890
+      )
+
+  """
+  defmacro send_service_check(name_ast, status, opts \\ []) do
+    name_iodata = MacroHelpers.to_iolist(name_ast, __CALLER__)
+
+    quote do
+      status_code =
+        case unquote(status) do
+          :ok -> "0"
+          :warning -> "1"
+          :critical -> "2"
+          :unknown -> "3"
+        end
+
+      header = ["_sc", "|", unquote(name_iodata), "|", status_code]
+
+      opts = unquote(opts)
+
+      message =
+        Enum.reduce([:timestamp, :hostname, :tags, :message], header, fn
+          :timestamp, acc ->
+            case Keyword.get(opts, :timestamp) do
+              nil -> acc
+              ts -> [acc, "|d:", Integer.to_string(ts)]
+            end
+
+          :hostname, acc ->
+            case Keyword.get(opts, :hostname) do
+              nil -> acc
+              h -> [acc, "|h:", h]
+            end
+
+          :tags, acc ->
+            case Keyword.get(opts, :tags) do
+              nil -> acc
+              tag_list -> [acc, "|#", Enum.intersperse(tag_list, ",")]
+            end
+
+          :message, acc ->
+            case Keyword.get(opts, :message) do
+              nil -> acc
+              m -> [acc, "|m:", m]
+            end
+        end)
+
+      unquote(@metrics_module)
+      |> Process.whereis()
+      |> :gen_udp.send(Instruments.statsd_host(), Instruments.statsd_port(), message)
+    end
+  end
+
   @doc false
   def flush_all_probes(wait_for_flush \\ true, flush_timeout_ms \\ 10_000) do
     Probe.Supervisor
