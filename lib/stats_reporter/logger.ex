@@ -50,4 +50,9 @@ defmodule Instruments.StatsReporter.Logger do
   def set(key, value, _options \\ []) do
     Logger.info("setting #{key} to #{value}")
   end
+
+  @doc false
+  def send_event(title, text, _options \\ []) do
+    Logger.info("event #{title}: #{text}")
+  end
 end
